@@ -12,8 +12,8 @@ using TaskBoardApp.Data;
 namespace TaskBoardApp.Data.Migrations
 {
     [DbContext(typeof(TaskBoardAppDbContext))]
-    [Migration("20240411121324_CreateIdentitySchema")]
-    partial class CreateIdentitySchema
+    [Migration("20240412105859_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -137,6 +137,22 @@ namespace TaskBoardApp.Data.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "0dfaa587-6987-4b3b-9449-8d5f9ff1d0cf",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "b75a3a65-8453-4660-9ab6-034a36d26f66",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedUserName = "TEST@SOFTUNI.BG",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJI+5m2L9A191O2cIuIxCE8h35dbnOhlL6jKe8cOnoBiNZrpCgGl/piYxJNgG3slHg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "9705abf3-212e-4a92-9714-e06dc117c407",
+                            TwoFactorEnabled = false,
+                            UserName = "test@softuni.bg"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -224,6 +240,119 @@ namespace TaskBoardApp.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("TaskBoardApp.Data.Models.Board", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Boards");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Open"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "In Progress"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Done"
+                        });
+                });
+
+            modelBuilder.Entity("TaskBoardApp.Data.Models.Task", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BoardId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(70)
+                        .HasColumnType("character varying(70)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BoardId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Tasks");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BoardId = 1,
+                            CreatedOn = new DateTime(2023, 9, 25, 13, 58, 58, 900, DateTimeKind.Local).AddTicks(246),
+                            Description = "Implement better styling for all public pages",
+                            OwnerId = "0dfaa587-6987-4b3b-9449-8d5f9ff1d0cf",
+                            Title = "Improve CSS styles"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BoardId = 1,
+                            CreatedOn = new DateTime(2024, 4, 7, 13, 58, 58, 900, DateTimeKind.Local).AddTicks(285),
+                            Description = "Create Android client app for the TaskBoard RESTful API",
+                            OwnerId = "0dfaa587-6987-4b3b-9449-8d5f9ff1d0cf",
+                            Title = "Android Client App"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            BoardId = 1,
+                            CreatedOn = new DateTime(2024, 4, 11, 13, 58, 58, 900, DateTimeKind.Local).AddTicks(288),
+                            Description = "Create Windows Forms desktop app client for the TaskBoard RESTful API",
+                            OwnerId = "0dfaa587-6987-4b3b-9449-8d5f9ff1d0cf",
+                            Title = "Desktop Client App"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            BoardId = 1,
+                            CreatedOn = new DateTime(2024, 4, 11, 13, 58, 58, 900, DateTimeKind.Local).AddTicks(290),
+                            Description = "Implement [Create Task] page for adding new tasks",
+                            OwnerId = "0dfaa587-6987-4b3b-9449-8d5f9ff1d0cf",
+                            Title = "Create Tasks"
+                        });
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -273,6 +402,28 @@ namespace TaskBoardApp.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TaskBoardApp.Data.Models.Task", b =>
+                {
+                    b.HasOne("TaskBoardApp.Data.Models.Board", "Board")
+                        .WithMany("Tasks")
+                        .HasForeignKey("BoardId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Board");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TaskBoardApp.Data.Models.Board", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
         }
