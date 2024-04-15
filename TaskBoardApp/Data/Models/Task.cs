@@ -24,6 +24,7 @@ namespace TaskBoardApp.Data.Models
 
 		public virtual Board Board { get; set; }
 
+		[Required]
 		public string OwnerId { get; set; } = null!;
 		public virtual IdentityUser User { get; set; } = null!;
 	}
