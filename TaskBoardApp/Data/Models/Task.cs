@@ -12,19 +12,21 @@ namespace TaskBoardApp.Data.Models
 
 		[Required]
 		[MaxLength(TaskMaxTitle)]
-		public string Title { get; set; }
+		public string Title { get; set; } = null!;
 
 		[Required]
 		[MaxLength(TaskMaxDescription)]
-		public string Description { get; set; }
+		public string Description { get; set; } = null!;
 
 		public DateTime CreatedOn { get; set; }
 
+		[ForeignKey(nameof(Board))]
 		public int BoardId { get; set; }
 
-		public virtual Board Board { get; set; }
+		public virtual Board? Board { get; set; }
 
 		[Required]
+		[ForeignKey(nameof(User))]
 		public string OwnerId { get; set; } = null!;
 		public virtual IdentityUser User { get; set; } = null!;
 	}

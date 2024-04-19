@@ -9,7 +9,7 @@ namespace TaskBoardApp.Data.Models
 
 		[Required]
 		[MaxLength(BoardMaxName)]
-		public string Name { get; set; }
+		public string Name { get; set; } = null!;
 		public virtual IEnumerable<Task> Tasks { get; set; }
 			= new List<Task>();
 	}
